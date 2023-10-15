@@ -8,7 +8,10 @@ This is a prototype, not yet ready for production use. Do not use in production 
 
 1) Install npm. For details see https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
 2) Install Electron. For details see https://www.electronjs.org/docs/latest/tutorial/installation
-3) Create the package:
+   
+		npm install electron --save-dev
+
+4) Create the package:
 
 		npm run publish
 
