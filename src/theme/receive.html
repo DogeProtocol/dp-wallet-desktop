@@ -1,0 +1,70 @@
+<div class="left">
+    <a href="#" class="headerButton goBack" onclick="return LoadWalletPage();" style="font-size:26px;">
+        <ion-icon name="arrow-back-circle-outline" role="img" class="md hydrated" aria-label="chevron back outline"></ion-icon>
+    </a>
+</div>
+
+<div class="section mt-2">
+    <div class="card">
+        <div class="card-header">
+            Receive Coins
+        </div>
+        <!-- Address -->
+        <div style="width:450px;margin:0 auto;">
+            <div id="dp-address" style="text-align:center;float:left;"></div>
+            <div style="float:left;margin-top:2px;margin-left:10px;">
+                <a href="#" onclick="return WriteAddressToClipboard();" title="Copy Address">
+                    <ion-icon name="copy-outline"></ion-icon>
+                </a>
+            </div>
+        </div>
+        <!-- * Address -->
+        <div class="card-body" style="margin: 0 auto;">
+            <div id="qrcode" style="min-width: 256px; min-height: 256px; display: inline-block; margin: 0 auto;">
+
+            </div>
+        </div>
+        <div style="margin:0 auto;color:red;">
+                <ion-icon name="warning"></ion-icon> Do not send Ethereum or DogeP tokens! Send only DP Testnet coins.
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function WriteAddressToClipboard() {
+        (async () => {
+            await WriteTextToClipboard(WALLET_ADDRESS);
+        })().catch(e => {
+            console.log(e);
+            // Deal with the fact the chain failed
+        });
+
+        return false;
+    }
+
+    function ShowQrCode() {
+
+        (async () => {
+            console.log("WALLET_ADDRESS " + WALLET_ADDRESS);
+            var qrbox = document.getElementById("qrcode");
+            qrbox.innerHTML = "";
+            //await qrCode(WALLET_ADDRESS);
+            var qrcode = new QRCode(qrbox, {
+                text: WALLET_ADDRESS,
+                width: 224,
+                height: 224,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        })().catch(e => {
+            console.log(e);
+            // Deal with the fact the chain failed
+        });
+
+        return false;
+    }
+
+    ShowQrCode();
+    $("#dp-address").text(WALLET_ADDRESS);
+</script>

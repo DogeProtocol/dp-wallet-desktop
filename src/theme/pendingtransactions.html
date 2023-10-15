@@ -1,0 +1,146 @@
+<div class="left">
+    <a href="#" class="headerButton goBack" onclick="return LoadWalletPage();" style="font-size:26px;">
+        <ion-icon name="arrow-back-circle-outline" role="img" class="md hydrated" aria-label="chevron back outline"></ion-icon>
+    </a>
+</div>
+
+<div class="section mt-1">
+    <div class="section-title">
+        Transactions <a href="#" onclick="return listTransactionsInTable(WALLET_ADDRESS, currentPage);" title="Refresh Transactions">
+            <ion-icon name="refresh"></ion-icon>
+        </a><span class="spinner-border spinner-border-sm me-05" role="status" aria-hidden="true" style="display:none;" id="spnLoading"></span>
+    </div>
+    <div class="card">
+        <div class="card-body pt-0">
+
+            <ul class="nav nav-tabs lined" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#" role="tab" onclick="return LoadTransactionsPage();">
+                        Completed
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#" role="tab">
+                        Pending
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content mt-2">
+                <div class="tab-pane fade show active" id="overview2" role="tabpanel">
+                    <div style="float:left;margin-left:10px;">
+
+                    </div>
+                    <div class="table-responsive" style="border-radius:1px;">
+                        <table class="table" id="table" data-toggle="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" data-field="from" data-formatter="StatusFormatter">In/Out</th>
+                                    <th scope="col" data-field="hash" data-formatter="TxnLinkFormatter">Txn Hash</th>
+                                    <th scope="col" data-field="createdAt" data-formatter="DateFormatter">Date</th>
+                                    <th scope="col" data-field="from" data-formatter="AddressLinkFormatter">From</th>
+                                    <th scope="col" data-field="to" data-formatter="AddressLinkFormatter">To</th>
+                                    <th scope="col" class="text-end text-primary" data-field="value" data-formatter="ValueLinkFormatter">Quantity</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <nav aria-label="Page navigation example" style="margin-top:15px;">
+                        <ul class="pagination">
+                            <li class="page-item"><a class="page-link" href="#" onclick="return PreviousPage();">Previous</a></li>
+                            <li class="page-item"><a class="page-link" href="#" onclick="return NextPage();">Next</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+
+    function StatusFormatter(value, row, index) {
+        if (value.toLowerCase() != WALLET_ADDRESS.toLowerCase()) {
+            return '<img src="../assets/images/in-txn.png" />';
+        }
+        return '<img src="../assets/images/out-txn.png" />';
+    }
+
+    function DateFormatter(value, row, index) {
+        return new Date(value).toUTCString();
+    }
+
+    function TxnLinkFormatter(value, row, index) {
+        return "<a href='#'>" + value.substring(0, 7); + "</a>";
+    }
+
+    function AddressLinkFormatter(value, row, index) {
+        return "<a href='#'>" + value.substring(0, 7); + "</a>";
+    }
+
+    function ValueLinkFormatter(hex, row, index) {
+        var wei = BigInt(hex).toString(10);
+        var l = wei.length;
+        var v = wei.substring(0, l - 18) + "." + wei.substring(l - 18);
+        return parseFloat(v);
+    }
+
+    var currentPage = -1;
+    var pageCount = 0;
+    var blnTableLoaded = false;
+    //WALLET_ADDRESS = '0x8bbb19a1e5730e9da4f15e7542c398d21c363aad';
+    function listTransactionsInTable(address, pageIndex) {
+        console.log("listTransactionsInTable1");
+        $("#spnLoading").css("display", "");
+        var url = READ_API_URL + "/api/accounts/" + address + "/pending/txn/page/" + pageIndex;
+        CALL_API_GET(url).then(function (resolve) {
+            console.log("listTransactionsInTable2");
+
+            var len = resolve.result.length;
+            var trans = '';
+            console.log("listTransactionsInTable2.5");
+
+            if (blnTableLoaded == false) {
+                $('#table').bootstrapTable({
+                    data: resolve.result
+                });
+                blnTableLoaded = true;
+            } else {
+                $('#table').bootstrapTable("load", resolve.result);
+            }
+
+            console.log("listTransactionsInTable3");
+
+            pageCount = resolve.pageCount;
+            if (currentPage < -1) {
+                currentPage = pageCount;
+            }
+            $("#spnLoading").css("display", "none");
+        }).catch(function (reject) {
+            $("#spnLoading").css("display", "none");
+            console.log("error : " + JSON.stringify(reject));  // An error occurred
+        });
+    }
+
+    function PreviousPage() {
+        if (currentPage == -1 && pageCount > 1) {
+            currentPage = pageCount - 1;
+        } else if (pageCount > 1) {
+            currentPage = currentPage - 1;
+        }
+
+        listTransactionsInTable(WALLET_ADDRESS, currentPage);
+
+        return false;
+    }
+
+    function NextPage() {
+        currentPage = currentPage + 1;
+        listTransactionsInTable(WALLET_ADDRESS, currentPage);
+        return false;
+    }
+
+    listTransactionsInTable(WALLET_ADDRESS, currentPage);
+
+</script>

@@ -1,0 +1,76 @@
+<div class="section mt-2">
+    <div class="card">
+        <div class="card-header">
+            Safety Quiz
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Wallet</h5>
+            <p class="card-text">What coins or tokens can you send to this wallet?</p>
+            <div class="form-check mb-1">
+                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" value="Ethereum">
+                <label class="form-check-label" for="flexRadioDefault1">
+                    Ethereum
+                </label>
+            </div>
+            <div class="form-check mb-1">
+                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" value="DogeP">
+                <label class="form-check-label" for="flexRadioDefault2">
+                    DogeP Tokens
+                </label>
+            </div>
+            <div class="form-check mb-1">
+                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3" value="dptestnet">
+                <label class="form-check-label" for="flexRadioDefault3">
+                    DogeP Testnet Coins
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault4" value="alltheabove">
+                <label class="form-check-label" for="flexRadioDefault4">
+                    All the above
+                </label>
+            </div>
+        </div>
+        <div id="toast-11" class="toast-box toast-center">
+            <div class="in">
+                <ion-icon name="checkmark-circle" class="text-success"></ion-icon>
+                <div class="text">
+                    That is correct. You should send only DogeP Testnet Coins to this wallet.
+                </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-text-light" id="btn-quiz">Ok</button>
+        </div>
+        <div id="toast-12" class="toast-box toast-center">
+            <div class="in">
+                <ion-icon name="warning" class="text-success"></ion-icon>
+                <div class="text">
+                    That is wrong! Please read the question carefully and try again.
+                </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-text-light"  onclick="return closeThisToastBox();">Close</button>
+        </div>
+        <div class="card-footer" style="text-align:right;">
+            <button type="button" class="btn btn-success me-1 mb-1" onclick="return IsCorrect();">Submit</button>
+        </div>
+        <script type="text/javascript">
+            function IsCorrect() {
+                var answer = document.querySelector('input[name="flexRadioDefault"]:checked');
+                if (answer == null || answer.value != 'dptestnet') {
+                    toastbox('toast-12');
+                    return false;
+                }
+                toastbox('toast-11');
+                return false;
+            }
+
+            function closeThisToastBox() {
+                var toastBoxes = document.querySelectorAll(".toast-box");
+                toastBoxes.forEach(function (el) {
+                    el.classList.remove("show")
+                })
+            }
+        </script>
+    </div>
+
+</div>
+
