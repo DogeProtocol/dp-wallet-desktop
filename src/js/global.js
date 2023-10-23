@@ -32,6 +32,10 @@ const EXPORT_WALLET = 11;
 const RECEIVE = 12;
 const TESTNET_COINS = 13;
 const PENDING_TRANSACTIONS = 14;
+const NEW_SEED_PHRASE = 15;
+const VERIFY_SEED_PHRASE = 16;
+const IMPORT_SEED = 17;
+const IMPORT_SEED_PASSWORD = 18;
 var PREVIOUS_PAGE = -1;
 var CURRENT_PAGE = -1;
 var WALLET_ADDRESS = "";
@@ -40,6 +44,7 @@ var isFirstTimeWalletOpen = false;
 
 //wasam api call 
 const OK = 0
+const CRYPTO_RAND_BYTES = 80
 const CRYPTO_MESSAGE_LEN = 32
 const CRYPTO_SECRETKEY_BYTES = 64 + 1281 + 897
 const CRYPTO_PUBLICKEY_BYTES = 32 + 897
@@ -69,18 +74,7 @@ var IS_WALLET_UNLOCKED = false;
 //Cookie
 var STORAGE_KEY_MIN_LENGTH = 3000;
 var STORAGE_TX_MIN_LENGTH = 40;
-
-async function getInt64Bytes(x) {
-    let y = Math.floor(x / 2 ** 32);
-    let b = [y, (y << 8), (y << 16), (y << 24), x, (x << 8), (x << 16), (x << 24)].map(z => z >>> 24)
-
-    var byteArray = [0, 0, 0, 0, 0, 0, 0, 0];
-    for (var index = 0; index < byteArray.length; index++) {
-        byteArray[index] = b[byteArray.length - 1 - index]
-    }  
-    return byteArray;
-}
-
+var TEMP_SEED_ARRAY = null;
 
 String.prototype.encodeHex = function () {
     var bytes = [];

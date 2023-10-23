@@ -1,7 +1,7 @@
 {
   "name": "dpwallet",
   "productName": "dpwallet",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Doge Protocol Wallet",
   "main": "src/index.js",
   "scripts": {
@@ -14,7 +14,8 @@
   "author": "Doge Protocol Community",
   "license": "MIT",
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.0"
+    "electron-squirrel-startup": "^1.0.0",
+    "sjcl": "^1.0.8"
   },
   "build": {
     "extraResources": [

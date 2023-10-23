@@ -2,27 +2,95 @@
 
 async function newAccount(newpass) {
     console.log("newAccount0");
+    let randPtr = Module._mem_alloc(CRYPTO_RAND_BYTES * Uint8Array.BYTES_PER_ELEMENT);
     let pkPtr = Module._mem_alloc(CRYPTO_PUBLICKEY_BYTES * Uint8Array.BYTES_PER_ELEMENT);
     let skPtr = Module._mem_alloc(CRYPTO_SECRETKEY_BYTES * Uint8Array.BYTES_PER_ELEMENT);
+    let r0 = Module._dp_randombytes(randPtr, CRYPTO_RAND_BYTES);
+    console.log("newAccount0.05");
+    const randBuf = new Uint8Array(Module.HEAPU8.buffer, randPtr, CRYPTO_RAND_BYTES);
 
-    let r1 = Module._dp_sign_keypair(pkPtr, skPtr);
+    let strTempLog = '';
+    for (let i = 0; i < randBuf.length; i++) {
+        strTempLog = strTempLog + randBuf[i];
+        if (i === randBuf.length - 1) {
+
+        } else {
+            strTempLog = strTempLog + ",";
+        }
+    }
     
+    //console.log("rand = %s", strTempLog);
+    SEED_BYTES = strTempLog;
+
+    if (r0 == OK) {
+        console.log("newAccount0.1");
+        
+        let r1 = Module._dp_sign_keypair_seed(pkPtr, skPtr, randPtr);
+
+        if (r1 == OK) {
+            console.log("newAccount1");
+            const strSkBuf = new Uint8Array(Module.HEAPU8.buffer, skPtr, CRYPTO_SECRETKEY_BYTES);
+            const strPkBuf = new Uint8Array(Module.HEAPU8.buffer, pkPtr, CRYPTO_PUBLICKEY_BYTES);
+
+            await storeAccountKey(strSkBuf, strPkBuf, newpass);
+            console.log("newAccount2");
+
+            Module._mem_free(randPtr);
+            Module._mem_free(skPtr);
+            Module._mem_free(pkPtr);
+
+            return Promise.resolve(true);
+        }
+
+        console.log("newAccount3");
+    }
+
+
+    Module._mem_free(randPtr);
+    Module._mem_free(skPtr);
+    Module._mem_free(pkPtr);
+
+    return Promise.reject();
+}
+
+async function newAccountFromSeed(newpass, seedArray) {
+    console.log("newAccountFromSeed 0");
+    if (seedArray.length != CRYPTO_RAND_BYTES) {
+        console.log("seed length is incorrect");
+        return Promise.reject();
+    }
+    //let randPtr = Module._mem_alloc(CRYPTO_RAND_BYTES * Uint8Array.BYTES_PER_ELEMENT);
+    let pkPtr = Module._mem_alloc(CRYPTO_PUBLICKEY_BYTES * Uint8Array.BYTES_PER_ELEMENT);
+    let skPtr = Module._mem_alloc(CRYPTO_SECRETKEY_BYTES * Uint8Array.BYTES_PER_ELEMENT);
+    console.log("newAccountFromSeed 1");
+
+    const typedSeedArray = new Uint8Array(CRYPTO_RAND_BYTES);
+    for (let i = 0; i < seedArray.length; i++) {
+        typedSeedArray[i] = seedArray[i];
+    }
+    const randPtr = Module._mem_alloc(typedSeedArray.length * typedSeedArray.BYTES_PER_ELEMENT);
+    Module.HEAPU8.set(typedSeedArray, randPtr);
+
+    let r1 = Module._dp_sign_keypair_seed(pkPtr, skPtr, randPtr);
+
     if (r1 == OK) {
-        console.log("newAccount1");
+        console.log("newAccountFromSeed 2");
         const strSkBuf = new Uint8Array(Module.HEAPU8.buffer, skPtr, CRYPTO_SECRETKEY_BYTES);
         const strPkBuf = new Uint8Array(Module.HEAPU8.buffer, pkPtr, CRYPTO_PUBLICKEY_BYTES);
-           
-        await storeAccountKey(strSkBuf, strPkBuf, newpass);
-        console.log("newAccount2");       
 
+        await storeAccountKey(strSkBuf, strPkBuf, newpass);
+        console.log("newAccountFromSeed 3");
+
+        Module._mem_free(randPtr);
         Module._mem_free(skPtr);
         Module._mem_free(pkPtr);
 
         return Promise.resolve(true);
     }
 
-    console.log("newAccount3");
+    console.log("newAccountFromSeed 4");
 
+    Module._mem_free(randPtr);
     Module._mem_free(skPtr);
     Module._mem_free(pkPtr);
 

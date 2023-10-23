@@ -98,3 +98,13 @@ async function OpenUrl(url) {
 
     return false;
 }
+
+async function ReadFile(seedfile) {
+    array = await FileApi.send('FileApi', seedfile);
+    return array;
+}
+
+async function sha256(message) {
+    hash = await FileApi.send('SjclApiSha256', message);
+    return hash;
+}

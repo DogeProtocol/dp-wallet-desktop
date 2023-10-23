@@ -8,7 +8,11 @@ const {
     clipboard,
     shell
 } = require("electron");
+
 const path = require('path');
+const sjcl = require('sjcl');
+const fs = require('fs');
+const readline = require('readline');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -78,3 +82,18 @@ ipcMain.handle('OpenUrlInShell', async (event, data) => {
     shell.openExternal(data);
 })
 
+ipcMain.handle('FileApi', async (event, data) => {
+    //console.log(data);
+    filename = path.join(__dirname, 'assets/seedwords.txt');
+
+    if (fs == null || fs == undefined) {
+        console.log("undefined");
+    }
+    var fileStream = fs.createReadStream(filename);
+
+    return fs.readFileSync(filename).toString();
+})
+
+ipcMain.handle('SjclApiSha256', async (event, data) => {
+    return sjcl.hash.sha256.hash(data);
+})

@@ -37,6 +37,9 @@ async function loadPage(status) {
         case NEW_ACCOUNT_PASSWORD:
             $("#dp-content").load("newaccountpassword.html");
             break;
+        case NEW_SEED_PHRASE:
+            $("#dp-content").load("newseedphrase.html");
+            break;
         case PASSWORD:
             $("#dp-content").load("password.html");
             break;
@@ -54,6 +57,15 @@ async function loadPage(status) {
             break;
         case PENDING_TRANSACTIONS:
             $("#dp-content").load("pendingtransactions.html");
+            break;
+        case VERIFY_SEED_PHRASE:
+            $("#dp-content").load("verifyseed.html");
+            break;
+        case IMPORT_SEED:
+            $("#dp-content").load("importseed.html");
+            break;
+        case IMPORT_SEED_PASSWORD:
+            $("#dp-content").load("importseedpassword.html");
             break;
         /*
         case ACCOUNT:
@@ -194,6 +206,17 @@ window.addEventListener('load', async () => {
              loadPage(IMPORT);
         };
 
+        if (event.target.id == 'btn-new-account-import-seed') {
+            loadPage(IMPORT_SEED);
+        };
+
+        if (event.target.id == 'btn-new-seed-phrase') {
+            loadPage(NEW_SEED_PHRASE);
+        };
+
+        if (event.target.id == 'btn-verify-seed') {
+            loadPage(VERIFY_SEED_PHRASE);
+        };
         //account
        // if (event.target.id == 'btn-account-back') {
        //     LoadWalletPage();
@@ -735,6 +758,50 @@ async function LoadWalletPage() {
     //$("#dp-footer-banner").load("footerWallet.html");
 }
 
+async function OnImportSeedPassword() {
+    var newpass = $("#txt-new-password").val();
+    var retypepass = $("#txt-retype-password").val();
+    if (newpass != retypepass) {
+        console.log("Password miss match")
+        return;
+    }
+
+    newAccountFromSeed(newpass, TEMP_SEED_ARRAY).then(function (resolve) {
+        if (resolve) {
+            console.log("p1");
+            (async () => {
+                let wallet = await GetWallet();
+                console.log("p2");
+                if (wallet != null) {
+                    console.log("p3");
+
+                    var encrypted_skkey = wallet.encrypted_skkey;
+                    var encrypted_pkkey = wallet.encrypted_pkkey;
+                    var password = newpass;
+
+                    unLockAccount(encrypted_skkey, encrypted_pkkey, password).then(function (resolve) {
+                        if (resolve) {
+                            //loadPage(NEW_SEED_PHRASE);
+                            loadPage(TESTNET_COINS);
+                            //LoadWalletPage();
+                        }
+                    }).catch(function (reject) {
+                        console.log("Error unLockAccount : " + JSON.stringify(reject));
+                    });
+                } else {
+                    console.log("p11");
+                    //loadPage(NEW_ACCOUNT);
+                }
+            })().catch(e => {
+                console.log(e);
+                // Deal with the fact the chain failed
+            });
+        }
+    }).catch(function (reject) {
+        console.log("Error newAccount : " + JSON.stringify(reject));
+    });
+}
+
 async function OnNewAccountPassword() {
     var newpass = $("#txt-new-password").val();
     var retypepass = $("#txt-retype-password").val();
@@ -757,7 +824,8 @@ async function OnNewAccountPassword() {
 
                     unLockAccount(encrypted_skkey, encrypted_pkkey, password).then(function (resolve) {
                         if (resolve) {
-                            loadPage(TESTNET_COINS);
+                            loadPage(NEW_SEED_PHRASE);
+                            //loadPage(TESTNET_COINS);
                             //LoadWalletPage();
                         }
                     }).catch(function (reject) {
@@ -829,6 +897,54 @@ function CheckExportAndLoadWalletPage() {
         console.log(e);        
         // Deal with the fact the chain failed
     });
+}
+
+async function ImportSeed(seed) {
+    var file_to_read = document.getElementById("file-import").files[0];
+    var fileread = new FileReader();
+    fileread.onload = function (e) {
+        var content = e.target.result;
+        console.log("ImportWalletFile1");
+        var wallet;
+
+        try {
+            wallet = JSON.parse(content);
+            if (wallet == null) {
+                return false;
+            }
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
+        console.log("ImportWalletFile2");
+        if (JSON.stringify(wallet).length > STORAGE_KEY_MIN_LENGTH) {
+            console.log("ImportWalletFile3");
+            var encrypted_skkey = wallet.encrypted_skkey;
+            var encrypted_pkkey = wallet.encrypted_pkkey;
+            var password = $("#txt-import-password").val();
+
+            if (encrypted_skkey == null || encrypted_pkkey == null || encrypted_skkey == undefined || encrypted_pkkey == undefined) {
+                console.log("ImportWalletFile4");
+                return false;
+            }
+            console.log("ImportWalletFile5");
+
+            importUnLockAccount(encrypted_skkey, encrypted_pkkey, password).then(function (resolve) {
+                if (resolve) {
+                    console.log("ImportWalletFile6");
+                    LoadWalletPage();
+                }
+            }).catch(function (reject) {
+                console.log("Error importUnLockAccount : " + JSON.stringify(reject));
+            });
+
+        } else {
+            console.log("ImportWalletFile7");
+            return false;
+        }
+
+    };
+    fileread.readAsText(file_to_read);
 }
 
 async function ImportWalletFile() {

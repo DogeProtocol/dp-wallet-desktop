@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer,shell } = require('electron');
+const { contextBridge, ipcRenderer, shell, fs, readline } = require('electron');
 
 contextBridge.exposeInMainWorld('StorageApi', {
     SetItem: function (key, value) {
@@ -19,6 +19,16 @@ contextBridge.exposeInMainWorld('ClipboardApi', {
 })
 
 contextBridge.exposeInMainWorld('ShellApi', {
+    send: (channel, data) => ipcRenderer.invoke(channel, data),
+    handle: (channel, callable, event, data) => ipcRenderer.on(channel, callable(event, data))
+})
+
+contextBridge.exposeInMainWorld('FileApi', {
+    send: (channel, data) => ipcRenderer.invoke(channel, data),
+    handle: (channel, callable, event, data) => ipcRenderer.on(channel, callable(event, data))
+})
+
+contextBridge.exposeInMainWorld('SjclApiSha256', {
     send: (channel, data) => ipcRenderer.invoke(channel, data),
     handle: (channel, callable, event, data) => ipcRenderer.on(channel, callable(event, data))
 })
