@@ -1,0 +1,188 @@
+        <!-- Wallet Card -->
+<div class="section wallet-card-section pt-1">
+    <div class="wallet-card">
+        <!-- Address -->
+        <div style="width:450px;margin:0 auto;">
+            <div id="dp-address" style="text-align:center;float:left;"></div>
+            <div style="float:left;margin-top:2px;margin-left:10px;">
+                <a href="#" onclick="return WriteAddressToClipboard();" title="Copy Address">
+                    <ion-icon name="copy-outline"></ion-icon>
+                </a>
+                <a href="#" onclick="return ShowQrCode();" title="QR Code" data-bs-toggle="modal" data-bs-target="#DialogIconedSuccess">
+                    <ion-icon name="qr-code"></ion-icon>
+                </a>
+            </div>
+        </div>
+        <!-- * Address -->
+        <!-- Balance -->
+        <div class="balance" style="clear:both;">
+            <div class="left">
+                <span class="title" id="dp-coin-balance1">Total Balance</span>
+                <div>
+                    <div style="text-align:center;float:left;">
+                        <h3 id="dp-coin-balance"></h3>
+                    </div>
+                    <div style="float:left;margin-left:10px;">
+                        <a href="#" onclick="return UpdateCoinBalance(true);" title="Refresh Balance">
+                            <ion-icon name="refresh"></ion-icon>
+                        </a><span class="spinner-border spinner-border-sm me-05" role="status" aria-hidden="true" style="display:none;" id="spnLoading"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- * Balance -->
+        <!-- Wallet Footer -->
+        <div class="wallet-footer">
+            <div class="item">
+                <a href="#" onclick="return loadPage(SEND);">
+                    <div class="icon-wrapper bg-warning">
+                        <ion-icon name="arrow-up-outline"></ion-icon>
+                    </div>
+                    <strong>Send</strong>
+                </a>
+            </div>
+            <div class="item">
+                <a href="#" onclick="return ShowReceive();">
+                    <div class="icon-wrapper bg-success">
+                        <ion-icon name="arrow-down-outline"></ion-icon>
+                    </div>
+                    <strong>Receive</strong>
+                </a>
+            </div>
+
+            <div class="item">
+                <a href="#"onclick="return TransactionsPage();">
+                    <div class="icon-wrapper" style="background: purple !important;">
+                        <ion-icon name="document"></ion-icon>
+                    </div>
+                    <strong>Transactions</strong>
+                </a>
+            </div>
+            <div class="item">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#exchangeActionSheet" onclick="return OpenWalletUrl();">
+                    <div class="icon-wrapper bg-danger">
+                        <ion-icon name="open"></ion-icon>
+                    </div>
+                    <strong>DpScan</strong>
+                </a>
+            </div>
+
+        </div>
+        <!-- * Wallet Footer -->
+    </div>
+<!-- Wallet Card -->
+
+    <div class="modal fade dialogbox" id="DialogIconedSuccess" data-bs-backdrop="static" tabindex="-1"
+         role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header" id="qrcode" style="min-width: 256px; min-height: 256px; display: inline-block; margin: 0 auto;">
+                
+                </div>
+
+                <div class="modal-footer">
+                    <div class="btn-inline">
+                        <a href="#" class="btn" data-bs-dismiss="modal">CLOSE</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function ShowQrCode() {
+
+        (async () => {
+            console.log("WALLET_ADDRESS " + WALLET_ADDRESS);
+            var qrbox = document.getElementById("qrcode");
+            qrbox.innerHTML = "";
+            //await qrCode(WALLET_ADDRESS);
+            var qrcode = new QRCode(qrbox, {
+                text: WALLET_ADDRESS,
+                width: 224,
+                height: 224,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        })().catch(e => {
+            console.log(e);
+            // Deal with the fact the chain failed
+        });   
+
+        return false;
+    }
+
+    function WriteAddressToClipboard() {
+        (async () => {
+            await WriteTextToClipboard(WALLET_ADDRESS);
+        })().catch(e => {
+            console.log(e);
+            // Deal with the fact the chain failed
+        });   
+
+        return false;
+    }
+
+    function UpdateCoinBalance(showSpinner) {
+        if (showSpinner) {
+            console.log("showSpinner");
+            $("#spnLoading").css("display", "");
+        }
+
+        (async () => {
+            console.log("UpdateCoinBalance 1");
+            await getCoinBalance(WALLET_ADDRESS, 'dp-coin-balance');
+            $("#spnLoading").css("display", "none");
+            console.log("UpdateCoinBalance 2");
+        })().catch(e => {
+            $("#spnLoading").css("display", "none");
+            console.log(e);
+            // Deal with the fact the chain failed
+        });
+
+        return false;
+    }
+
+    function OpenWalletUrl() {
+        (async () => {
+            console.log("update balance1");
+            await OpenUrl('https://dpscan.app/account/' + WALLET_ADDRESS + '/txn/page');
+            console.log("update balance2");
+        })().catch(e => {
+            console.log(e);
+            // Deal with the fact the chain failed
+        });
+    }
+
+    function TransactionsPage() {
+        (async () => {
+            console.log("TransactionsPage1");
+            LoadTransactionsPage();
+            console.log("TransactionsPage2");
+        })().catch(e => {
+            console.log(e);
+            // Deal with the fact the chain failed
+        });
+    }
+
+    function ShowReceive() {
+        loadPage(RECEIVE);
+    }   
+    
+    var balanceCheckCount = 0;
+    function periodicBalanceCheck() {
+        UpdateCoinBalance(false);       
+        balanceCheckCount = balanceCheckCount + 1;
+        if (balanceCheckCount < 5) {
+            setTimeout(periodicBalanceCheck, 3000);
+        } else if (balanceCheckCount >= 5 && balanceCheckCount < 10) {
+            setTimeout(periodicBalanceCheck, 5000);
+        } else if (balanceCheckCount >= 10) {
+            setTimeout(periodicBalanceCheck, 5000);
+        }
+    }   
+    $("#spnLoading").css("display", "");
+    setTimeout(periodicBalanceCheck, 1000);
+</script>
+

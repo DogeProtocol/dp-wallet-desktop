@@ -1,0 +1,114 @@
+<div class="left">
+    <a href="#" class="headerButton goBack" onclick="return GoBack();" style="font-size:26px;">
+        <ion-icon name="arrow-back-circle-outline" role="img" class="md hydrated" aria-label="chevron back outline"></ion-icon>
+    </a>
+</div>
+
+<div class="section mt-2">
+
+    <div class="card">
+        <div class="card-header">
+            Restore Wallet From Key File
+        </div>
+
+        <div class="card-body">
+            <p class="card-text">You can restore only Doge Protocol Testnet wallet. Do not try to restore your Ethereum or DogeP token or other wallets!</p>
+
+            <div class="section mt-2">
+
+                <div class="card">
+                    <div class="card-body">
+
+                        <form>
+                            <div class="custom-file-upload" id="file-import-box">
+                                <input type="file" id="file-import">
+                                <label for="file-import" style="cursor:pointer;">
+                                    <span>
+                                        <strong>
+                                            <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                                            <i>Select a wallet file</i>
+                                        </strong>
+                                    </span>
+                                </label>
+                                <div id="divWalletFile">
+
+                                </div>
+                            </div>
+
+                        </form>
+
+                        <div class="form-group basic" style="margin-top:15px;">
+                            <div class="input-wrapper">
+                                <label class="label" for="txt-import-password">Password</label>
+                                <input type="password" class="form-control" id="txt-import-password" placeholder="Enter the wallet password">
+                                <i class="clear-input">
+                                    <ion-icon name="close-circle"></ion-icon>
+                                </i>
+                            </div>
+                        </div>
+
+                        <div style="text-align: right; margin-top: 15px;">
+                            <button type="button" class="btn btn-danger me-1 mb-1" id="btnImport" onclick="return TryImport();">Restore</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="toast-12" class="toast-box toast-center">
+                <div class="in">
+                    <ion-icon name="warning" class="text-success"></ion-icon>
+                    <div class="text" id="divError">
+                        import error.
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-text-light" onclick="return closeThisToastBox();">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('#file-import').change(function () {
+        console.log("changed");
+        var file = $('#file-import')[0].files[0].name;
+        document.getElementById("divWalletFile").innerText = file;
+    });
+
+    function TryImport() {
+        console.log("TryImport1");
+        var walletFile = document.getElementById("file-import");
+        console.log("TryImport2");
+        if (walletFile.files.length == 0) {
+            console.log("TryImport3");
+            document.getElementById("divError").innerText = "Please select a wallet file to import!";
+            toastbox('toast-12');
+            return false;
+        }
+        console.log("TryImport4");
+        var password1 = document.getElementById("txt-import-password").value;
+        if (password1.length < 1) {
+            document.getElementById("divError").innerText = "Please enter the wallet password!";
+            toastbox('toast-12');
+            return false;
+        }
+
+        (async () => {
+            await ImportWalletFile();
+        })().catch(e => {
+            console.log(e);
+            // Deal with the fact the chain failed
+        });    
+        
+        document.getElementById("divError").innerText = "An error ocurred importing the wallet. Please select a proper wallet file or try with a different password!";
+        toastbox('toast-12');
+
+        return false;
+    }
+
+    function closeThisToastBox() {
+        var toastBoxes = document.querySelectorAll(".toast-box");
+        toastBoxes.forEach(function (el) {
+            el.classList.remove("show")
+        })
+    }
+</script>

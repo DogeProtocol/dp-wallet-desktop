@@ -1,0 +1,21 @@
+<div class="section mt-2">
+    <div class="card">
+        <div class="card-header">
+            Testnet Coins
+        </div>
+        <div class="card-body">
+            <div>
+                <p class="card-text">Would you like to get some testnet coins to try out? It can take upto <span style="font-weight:bold">5 minutes</span> to get these coins.</p>
+                <form>
+                    <div style="text-align:right;">
+                        <!-- do not forget to delete me-1 and mb-1 when copy / paste codes -->
+                        <button type="button" class="btn btn-success me-1 mb-1" id="btn-testnet-coins" onclick="return requestTestnetTokens();"><span class="spinner-border spinner-border-sm me-05" role="status" aria-hidden="true" style="display:none;" id="spnLoading"></span>Request Coins</button>
+                    </div>
+                </form>
+            </div>
+            <div>
+                <a href="#" onclick="return loadPage(EXPORT_WALLET);" style="color:gray">Skip</a>
+            </div>
+        </div>
+    </div>
+</div>

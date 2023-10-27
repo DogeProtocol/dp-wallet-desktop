@@ -1,0 +1,337 @@
+<div class="left">
+    <a href="#" class="headerButton goBack" onclick="return LoadWalletPage();" style="font-size:26px;">
+        <ion-icon name="arrow-back-circle-outline" role="img" class="md hydrated" aria-label="chevron back outline"></ion-icon>
+    </a>
+</div>
+
+<div class="section mt-2">
+
+    <div class="card">
+        <div class="card-header">
+            Send
+        </div>
+        <div class="card-body">
+            <p class="card-text">Send coins to someone!</p>
+            <form>
+                <div id="dp-send-from-balance" style="display:none;"></div>
+                <div id="dp-send-from-symbol" style="display:none;"></div>
+
+                <div class="form-group basic">
+                    <div class="input-wrapper">
+                        <label class="label" for="userid1">Available Balance</label>
+                        <div style="text-align:center;float:left;">
+                            <h3 id="dp-coin-balance"></h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group basic" style="clear:left;">
+                    <div class="input-wrapper">
+                        <label class="label" for="userid1">Address</label>
+                        <input type="text" class="form-control" id="dp-send-to-address" placeholder="Address to send to">
+                        <i class="clear-input">
+                            <ion-icon name="close-circle"></ion-icon>
+                        </i>
+                    </div>
+                </div>
+
+                <div class="form-group basic">
+                    <div class="input-wrapper">
+                        <label class="label" for="amount1">Quantity</label>
+                        <input type="text" class="form-control" id="dp-send-to-amount" placeholder="Quantity to send">
+                        <i class="clear-input">
+                            <ion-icon name="close-circle"></ion-icon>
+                        </i>
+                    </div>
+                </div>
+
+                <div class="form-group basic" style="display:none;">
+                    <div class="input-wrapper">
+                        <label class="label" for="amount1">Suggested Gas</label>
+                        <input type="text" class="form-control" id="dp-send-from-gas-price" placeholder="Gas" value="1000000000">
+                        <i class="clear-input">
+                            <ion-icon name="close-circle"></ion-icon>
+                        </i>
+                    </div>
+                </div>
+
+                <div style="text-align:right;">
+                    <!-- do not forget to delete me-1 and mb-1 when copy / paste codes -->
+                    <button type="button" class="btn btn-success me-1 mb-1" id="btnSend" onclick="return TransactionStep0();"><span class="spinner-border spinner-border-sm me-05" role="status" aria-hidden="true" style="display:none;" id="spnLoading"></span>Send</button>
+                </div>
+            </form>
+
+            <div style="margin-top:15px;">
+                Here are some example addresses you can try sending to.
+                <ul>
+                    <li><a href="#" style="color: gray; text-decoration: underline;" onclick="return SetAddressToSend('0xf3a5018b6d38549459880bdc3bfedd2a7bae2c9e');">0xf3a5018b6d38549459880bdc3bfedd2a7bae2c9e</a></li>
+                    <li><a href="#" style="color: gray;text-decoration: underline;" onclick="return SetAddressToSend('0x34bf2610320df478e617f3f496952edd8c80a9a4');">0x34bf2610320df478e617f3f496952edd8c80a9a4</a></li>
+                </ul>
+            </div>
+            <div id="toast-11" class="toast-box toast-center">
+                <div class="in">
+                    <ion-icon name="checkmark-circle" class="text-success"></ion-icon>
+                    <div class="text">
+                        Your transaction was submitted. It can take a few seconds to process the transaction.
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-text-light" onclick="return LoadWalletPage();">Ok</button>
+            </div>
+            <div id="toast-12" class="toast-box toast-center">
+                <div class="in">
+                    <ion-icon name="warning" class="text-success"></ion-icon>
+                    <div class="text" id="divError">
+                        Transaction Error.
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-text-light" onclick="return closeThisToastBox();">Close</button>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            function ShowUnknownError() {
+                $("#spnLoading").css("display", "none");
+                document.getElementById("divError").innerText = "An unknown error occurred!";
+                toastbox('toast-12');
+                return false;
+            }
+
+            console.log("loaded0");
+            async function TransactionStep3(tx, hash) {
+                console.log("TransactionStep3");
+                var url = WRITE_API_URL + "/api/transactions";
+                var json = { "txnData": tx }
+                CALL_API_POST_DATA(url, json).then(function (resolve) {
+                    //Write pending transaction
+                    //var guid = resolve.hash;
+                    //storeTransactionHash(hash, tx, guid).then(function (resolve) {
+                    console.log(JSON.stringify(resolve) + " hash txn is complete : " + hash + " " + resolve);
+
+                    if (resolve) {
+                        toastbox('toast-11');
+                        //loadPage(PENDING_TRANSACTIONS);
+                    } else {
+                        return ShowUnknownError();
+                    }
+                    //}).catch(function (reject) {
+                    //  console.log("error : " + JSON.stringify(reject));  // An error occurred
+                    //});                            
+                }).catch(function (reject) {
+                    console.log("error : " + JSON.stringify(reject));  // An error occurred
+                    return ShowUnknownError();
+                });
+            }
+
+            async function TransactionStep2(fromaddress, nonce, toaddress, amount, gas, gasprice, chainid) {
+                console.log("TransactionStep2");
+                //Tx message hex
+                getTxMessage(fromaddress, nonce, toaddress, amount, gas, gasprice, chainid).then(function (resolve) {
+                    var skKey = SK_KEY;
+                    var pkKey = PK_KEY;
+                    var txMessageHex = resolve;
+
+                    signAccount(txMessageHex, skKey).then(function (resolve) {
+                        if (resolve) {
+                            var sig = SIGN;
+                            verifyAccount(txMessageHex, sig, pkKey).then(function (resolve) {
+                                if (resolve) {
+                                    getTxHash(fromaddress, nonce, toaddress, amount, gas, gasprice, chainid, pkKey, sig).then(function (resolve) {
+                                        if (resolve) {
+                                            var hash = resolve;
+                                            getTxData(fromaddress, nonce, toaddress, amount, gas, gasprice, chainid, pkKey, sig).then(function (resolve) {
+                                                if (resolve) {      
+                                                    
+                                                    //console.log("pkKey : " + pkKey);
+                                                    //console.log("sig : " + sig);
+                                                    console.log("hash : " + hash);
+
+                                                    console.log(fromaddress);
+                                                    console.log(nonce);
+                                                    console.log(toaddress);
+                                                    console.log(amount);
+                                                    console.log(gas + " " + gasprice + " " + chainid);
+                                                    
+                                                    TransactionStep3(resolve, hash);
+                                                }
+                                            }).catch(function (reject) {
+                                                console.log("Error getTxData : " + JSON.stringify(reject));
+                                                return ShowUnknownError();
+                                            });
+                                        }
+                                    }).catch(function (reject) {
+                                        console.log("Error getTxHash : " + JSON.stringify(reject));
+                                        return ShowUnknownError();
+                                    });
+                                }
+                            }).catch(function (reject) {
+                                console.log("Error verifyAccount : " + JSON.stringify(reject));
+                                return ShowUnknownError();
+                            });
+                        }
+                    }).catch(function (reject) {
+                        console.log("Error signAccount : " + JSON.stringify(reject));
+                        return ShowUnknownError();
+                    });
+                }).catch(function (reject) {
+                    console.log("Error getTxMessage : " + JSON.stringify(reject));
+                    return ShowUnknownError();
+                });
+            }
+
+            function isNumeric(str) {
+                if (typeof str != "string") return false // we only process strings!  
+                return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+                    !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+            }
+
+            var accBal = "";
+
+            function TransactionStep0() {
+
+                var toaddressObject = $("#dp-send-to-address").val();
+
+                if (toaddressObject.length != 42) {
+                    document.getElementById("divError").innerText = "Enter the to address correctly!";
+                    toastbox('toast-12');
+                    return false;
+                }
+
+                var amountObject = $("#dp-send-to-amount").val();
+                if (!isNumeric(amountObject)) {
+                    document.getElementById("divError").innerText = "Enter the to amount correctly!";
+                    toastbox('toast-12');
+                    return false;
+                }                
+
+                $("#spnLoading").css("display", "");
+                var url = READ_API_URL + "/api/accounts/" + WALLET_ADDRESS + "/balance";
+               // var id = "dp-send-from-balance";
+                console.log("getCoinBalance1");
+                CALL_API_GET(url).then(function (resolve) {
+                    console.log("getCoinBalance2");
+                    if (resolve.result == null || resolve.result._Balance == null) {
+                        accBal = "0";
+                        NONCE = 0;
+                        $("#spnLoading").css("display", "none");
+                        document.getElementById("divError").innerText = "Please ensure you have enough balance.";
+                        toastbox('toast-12');
+                        return false;
+                    }
+                    NONCE = parseInt(resolve.result.nonce);
+
+                    ////alert("NONCE : " + NONCE);
+                    //NONCE = 8;
+                    //alert("NONCE : " + NONCE);
+                    getWeiToDogeProtocol(resolve.result._Balance).then(function (resolve) {
+                        getParseBigFloat(resolve).then(function (resolve) {
+                            var value = resolve;
+                            accBal = value;
+                            TransactionStep1();
+                        });
+                    });
+
+                }).catch(function (reject) {
+                    $("#" + id).text("");
+                    console.log("error : " + JSON.stringify(reject));  // An error occurred
+                    return ShowUnknownError();
+                });
+            }
+
+            function SetAddressToSend(address) {
+                document.getElementById("dp-send-to-address").value = address;
+                return false;
+            }
+
+            function TransactionStep1() {
+                console.log("TransactionStep1 " + accBal);
+                //check empty
+                var checkstatus = false;
+                console.log($("dp-send-from-balance").text());
+                //getCoinBalance(WALLET_ADDRESS, "dp-send-from-balance");
+
+                //var fromaddressObject = $("#dp-address");
+                var toaddressObject = $("#dp-send-to-address");
+                var amountObject = $("#dp-send-to-amount");
+                var gasPriceObject = $("#dp-send-from-gas-price");
+                //var accountBalanceObject = $("dp-send-from-balance");
+
+                var fromaddress = WALLET_ADDRESS; //fromaddressObject.text();
+                var toaddress = toaddressObject.val();
+                var amount = amountObject.val();
+                var gasPrice = gasPriceObject.val();
+   
+                //var accountBalance = accBal;
+
+                /*(async () => {
+                    console.log("TransactionStep1 0.5");
+                    await GetBalanceOfCoin(WALLET_ADDRESS);
+                    accountBalance = COIN_BALANCE;
+                    console.log("TransactionStep1 1.5 " + COIN_BALANCE);
+                })().catch(e => {
+                    console.log("TransactionStep1 error1");
+                    console.log(e);
+                    return false;
+                    // Deal with the fact the chain failed
+                });*/
+                console.log("TransactionStep1 2");
+                
+                if (!toaddressObject.val()) {
+                    //toaddressObject.addClass("empty");
+                    checkstatus = true;
+                } else {
+                    //toaddressObject.removeClass("empty");
+                }
+                if (!amountObject.val()) {
+                   // amountObject.addClass("empty");
+                    checkstatus = true;
+                } else {
+                    //amountObject.removeClass("empty");
+                }
+                if (!gasPriceObject.val()) {
+                    //gasPriceObject.addClass("empty");
+                    checkstatus = true;
+                } else {
+                    //gasPriceObject.removeClass("empty");
+                }
+                console.log("TransactionStep1 3 " + gasPrice);
+                //var totalamount = amount;
+                //getWeiToDogeProtocol(gasPrice).then(function (resolve) {
+                    //totalamount = amount + resolve;
+                    //if (totalamount > accountBalance) {
+                      //  checkstatus = true;
+                        //console.log("Insufficient funds " + totalamount + "," + accountBalance + "," + resolve);
+                    //}
+                //});
+
+                if (checkstatus == true) {
+                    console.log("checkstatus1");
+                    return ShowUnknownError();
+                }
+                console.log("TransactionStep1 4");
+                getParseBigFloat(amount).then(function (resolve) {
+                    getDogeProtocolToWei(resolve).then(function (resolve) {
+                        TransactionStep2(fromaddress, NONCE, toaddress, resolve, GAS, gasPrice, CHAIN_ID);
+                    }).catch(function (reject) {
+                        console.log("error : " + JSON.stringify(reject));  // An error occurred
+                        return ShowUnknownError();
+                    });
+                }).catch(function (reject) {
+                    console.log("error : " + JSON.stringify(reject));  // An error occurred
+                    return ShowUnknownError();
+                });
+            }
+
+            function closeThisToastBox() {
+                var toastBoxes = document.querySelectorAll(".toast-box");
+                toastBoxes.forEach(function (el) {
+                    el.classList.remove("show");
+                })
+            }
+            console.log("loaded1");
+
+            showCoinBalance('dp-coin-balance');
+        </script>
+    </div>
+</div>
+
+

@@ -1,0 +1,128 @@
+
+<div class="left">
+    <a href="#" class="headerButton goBack" onclick="return GoBack();" style="font-size:26px;">
+        <ion-icon name="arrow-back-circle-outline" role="img" class="md hydrated" aria-label="chevron back outline"></ion-icon>
+    </a>
+</div>
+
+<div class="listview-title mt-1">Wallet</div>
+<ul class="listview image-listview text inset">
+    <li>
+        <a href="#" class="item" onclick="return ExportWalletStart();">
+            <div class="in">
+                <div>Backup Wallet</div>
+            </div>
+        </a>
+    </li>
+    <li>
+        <a href="#" class="item" onclick="return RequestCoins();">
+            <div class="in">
+                <div><span class="spinner-border spinner-border-sm me-05" role="status" aria-hidden="true" style="display:none;" id="spnLoading"></span>Request Testnet Coins</div>
+            </div>
+        </a>
+    </li>
+    <li id="liDelete">
+        <a href="#" class="item" data-bs-toggle="modal" data-bs-target="#divDelete">
+            <div class="in">
+                <div>Delete Wallet</div>
+            </div>
+        </a>
+    </li>
+</ul>
+
+<div id="toast-11" class="toast-box toast-center">
+    <div class="in">
+        <ion-icon name="checkmark-circle" class="text-success"></ion-icon>
+        <div class="text">
+            Testnet coins have been requested. It can take upto 5 minutes to get the coins.
+        </div>
+    </div>
+    <button type="button" class="btn btn-sm btn-text-light" onclick="return LoadWalletPage();">Ok</button>
+</div>
+<div id="toast-12" class="toast-box toast-center">
+    <div class="in">
+        <ion-icon name="warning" class="text-success"></ion-icon>
+        <div class="text" id="divError">
+            Wallet error.
+        </div>
+    </div>
+    <button type="button" class="btn btn-sm btn-text-light" onclick="return closeThisToastBox();">Close</button>
+</div>
+
+<!-- Dialog Basic -->
+<div class="modal fade dialogbox" id="divDelete" data-bs-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Wallet</h5>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the wallet?
+            </div>
+            <div class="modal-footer">
+                <div class="btn-inline">
+                    <a href="#" class="btn btn-text-secondary" data-bs-dismiss="modal" onclick="return DeleteWalletStart();">YES</a>
+                    <a href="#" class="btn btn-text-primary" data-bs-dismiss="modal">NO</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- * Dialog Basic -->
+
+<script type="text/javascript">
+
+    function DeleteWalletStart() {
+        (async () => {
+            await DeleteWallet();
+            loadPage(WELCOME1);
+        })().catch(e => {
+            console.log(e);
+            // Deal with the fact the chain failed
+        });
+    }
+
+    function ExportWalletStart() {
+        if (IsWalletUnlocked() == true) {
+            console.log("wallet is unlocked");
+            loadPage(EXPORT_WALLET);
+            return false;
+        } else {
+            document.getElementById("divError").innerText = "Please unlock wallet first!";
+            toastbox('toast-12');
+            return false;
+        }
+    }
+
+    function RequestCoins() {
+        if (IsWalletUnlocked() == true) {
+            $("#spnLoading").css("display", "");
+            var url = FAUCET_API_URL + "/api/faucet/transactions";
+            var jsonAddress = {};
+            jsonAddress.address = WALLET_ADDRESS;
+            CALL_API_POST_DATA(url, jsonAddress).then(function (resolve) {
+                $("#spnLoading").css("display", "none");
+                toastbox('toast-11');
+            }).catch(function (reject) {
+                console.log("error : " + JSON.stringify(reject));  // An error occurred
+                $("#spnLoading").css("display", "none");
+                return false;
+            });
+        } else {
+            document.getElementById("divError").innerText = "Please unlock wallet first!";
+            toastbox('toast-12');
+            return false;
+        }
+    }
+
+    function closeThisToastBox() {
+        var toastBoxes = document.querySelectorAll(".toast-box");
+        toastBoxes.forEach(function (el) {
+            el.classList.remove("show")
+        })
+    }
+
+    if (IsWalletUnlocked() == true) {
+        document.getElementById("liDelete").style.display = 'none';
+    }
+</script>

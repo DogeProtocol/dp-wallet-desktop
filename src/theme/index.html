@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src-elem 'self' 'unsafe-inline'; script-src-elem 'self' 'unsafe-inline';style-src 'unsafe-inline';script-src 'unsafe-inline' 'unsafe-eval';connect-src * 'self';worker-src *;img-src 'self' data: w3.org/svg/2000">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>Doge Protocol Wallet</title>
+    <meta name="description" content="Doge Protocol Wallet">
+    <meta name="keywords"
+          content="bootstrap, wallet, banking, fintech mobile template, cordova, phonegap, mobile, html, responsive" />
+    <link rel="icon" type="image/png" href="assets/img/favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon/192x192.png">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/bootstrap-table.css" crossorigin="anonymous">
+    <link rel="manifest" href="__manifest.json">
+    <script src="../lib/jquery.min.js"></script>
+</head>
+
+<body style="margin-bottom:40px;">
+    <!-- library -->
+    <script type="text/javascript" src="../lib/crypto/aes.js"></script>
+    <script type="text/javascript" src="../lib/crypto/pbkdf2.js"></script>
+    <script type="text/javascript" src="../lib/dp/wasm_exec.js"></script>
+    <script async type="text/javascript" src="../lib/hybrid-pqc/hybrid-pqc.js"></script>
+    <script type="text/javascript" src="../lib/qrcode/jquery.qrcode.min.js"></script>
+    <script async type="text/javascript" src="../js/qrcode.js"></script>
+    <script type="text/javascript" src="../js/crypto.js"></script>
+    <script async type="text/javascript" src="../js/dppage.js"></script>
+    <script async type="text/javascript" src="../js/file.js"></script>
+    <script async type="text/javascript" src="../js/seed.js"></script>
+    <script async type="text/javascript" src="../js/global.js"></script>
+    <script async type="text/javascript" src="../js/webassembly.js"></script>
+    <script async type="text/javascript" src="../js/bridge.js"></script>
+    <script async type="text/javascript" src="../js/bootstrap-table.js"></script>
+    <script type="text/javascript" src="../js/init.js"></script>
+    <script type="text/javascript">InitWebAssembly();</script>
+
+    <div style="display:none;">
+        <textarea id="txtSk" rows="4" cols="50"></textarea><br />
+        <textarea id="txtPk" rows="4" cols="50"></textarea><br />
+        <textarea id="txtSign" rows="4" cols="50"></textarea>
+    </div>
+
+    <!-- loader -->
+    <div id="loader">
+        <img src="assets/img/loading-icon.png" alt="icon" class="loading-icon">
+    </div>
+    <!-- * loader -->
+    <!-- App Header -->
+    <div class="section full gradientSection">
+        <div style="height:80px;">
+            <div>
+                <img src="../assets/icons/app/dp.png" alt="image" style="width: 64px; height: 64px;margin-top:10px;">
+            </div>
+        </div>
+        <div style="height:36px;">
+            <div class="text-light">
+                <h2 class="text-light">Doge Protocol Wallet</h2>
+            </div>
+        </div>
+    </div>
+    <!-- * App Header -->
+    <!-- App Capsule -->
+    <div id="dp-content">
+
+    </div>
+    <!-- * App Capsule -->
+    <!-- App Bottom Menu -->
+    <div class="appBottomMenu">
+        <a href="#" class="item" onclick="return LoadWalletPage();">
+            <div class="col">
+                <ion-icon name="home"></ion-icon>
+                <strong>Home</strong>
+            </div>
+        </a>
+        <a href="#" class="item" onclick="return OpenUrl('https://dpdocs.org');">
+            <div class="col">
+                <ion-icon name="help"></ion-icon>
+                <strong>Help</strong>
+            </div>
+        </a>
+        <a href="#" class="item" onclick="return OpenUrl('https://dpscan.app');">
+            <div class="col">
+                <ion-icon name="apps-outline"></ion-icon>
+                <strong>DpScan</strong>
+            </div>
+        </a>
+        <a href="#" class="item" id="btn-settings" onclick="return ShowSettings();">
+            <div class="col">
+                <ion-icon name="settings-outline"></ion-icon>
+                <strong>Settings</strong>
+            </div>
+        </a>
+    </div>
+    <!-- * App Bottom Menu -->
+    <!-- * App Sidebar -->
+    <!-- ========= JS Files =========  -->
+    <!-- Bootstrap -->
+    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
+    <!-- Ionicons -->
+    <script type="module" src="assets/js/ionicons.js"></script>
+    <!-- Splide -->
+    <script src="assets/js/plugins/splide/splide.min.js"></script>
+    <!-- Apex Charts -->
+    <script src="assets/js/plugins/apexcharts/apexcharts.min.js"></script>
+    <!-- Base Js File -->
+    <script src="assets/js/base.js"></script>
+
+    <script>
+
+        var sparklineAreaExampleSuccess1 = {
+            series: [{
+                data: [555, 1222, 777, 888, 555, 888, 999, 1222]
+            }],
+            chart: {
+                type: 'area',
+                width: '100%',
+                height: 70,
+                sparkline: {
+                    enabled: true
+                }
+            },
+            stroke: {
+                width: 2,
+            },
+            colors: ['#1DCC70'],
+            tooltip: {
+                enabled: false
+            }
+        };
+        var sparklineAreaExampleSuccess2 = {
+            series: [{
+                data: [55, 66, 55, 77, 66, 180, 290, 333]
+            }],
+            chart: {
+                type: 'area',
+                width: '100%',
+                height: 70,
+                sparkline: {
+                    enabled: true
+                }
+            },
+            stroke: {
+                width: 2,
+            },
+            colors: ['#1DCC70'],
+            tooltip: {
+                enabled: false
+            }
+        };
+        var sparklineAreaExampleDanger1 = {
+            series: [{
+                data: [2222, 1666, 1444, 1777, 1333, 1111, 777, 666]
+            }],
+            chart: {
+                type: 'area',
+                width: '100%',
+                height: 70,
+                sparkline: {
+                    enabled: true
+                }
+            },
+            stroke: {
+                width: 2,
+            },
+            colors: ['#FF396F'],
+            tooltip: {
+                enabled: false
+            }
+        };
+        var sparklineAreaExampleDanger2 = {
+            series: [{
+                data: [1200, 1444, 2900, 505, 531, 1900, 555, 75]
+            }],
+            chart: {
+                type: 'area',
+                width: '100%',
+                height: 70,
+                sparkline: {
+                    enabled: true
+                }
+            },
+            stroke: {
+                width: 2,
+            },
+            colors: ['#FF396F'],
+            tooltip: {
+                enabled: false
+            }
+        };
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.chart-sparkline-success-1').forEach(chart => new ApexCharts(chart, sparklineAreaExampleSuccess1).render());
+            document.querySelectorAll('.chart-sparkline-success-2').forEach(chart => new ApexCharts(chart, sparklineAreaExampleSuccess2).render());
+            document.querySelectorAll('.chart-sparkline-danger-1').forEach(chart => new ApexCharts(chart, sparklineAreaExampleDanger1).render());
+            document.querySelectorAll('.chart-sparkline-danger-2').forEach(chart => new ApexCharts(chart, sparklineAreaExampleDanger2).render());
+
+        })
+
+        LoadSeedMap();
+    </script>
+
+</body>
+
+</html>
