@@ -4,7 +4,7 @@ const SEED_LENGTH = 80;
 const SEED_FILE = "./assets/seedwords.txt"
 const SEED_MAP = new Map(); //key is word, items are string corresponding to index1 and index2
 const SEED_REVERSE_MAP = new Map(); //vice-versa of SEED_MAP
-const SEED_HASH = "-31363620,2143817501,-23046109,-603794728,707283201,1039486365,-875907884,1936733892";
+const SEED_HASH = "1651697838,1921825679,138234168,742830232,-668928765,558176785,-230059454,-688373737";
 const SEED_FRIENDLY_INDEX_ARRAY = ['a1', 'a2', 'a3', 'a4', 'b1', 'b2', 'b3', 'b4', 'c1', 'c2', 'c3', 'c4', 'd1', 'd2', 'd3', 'd4', 'e1', 'e2', 'e3', 'e4', 'f1', 'f2', 'f3', 'f4', 'g1', 'g2', 'g3', 'g4', 'h1', 'h2', 'h3', 'h4', 'i1', 'i2', 'i3', 'i4', 'j1', 'j2', 'j3', 'j4'];
 var SEED_FRIENDLY_INDEX_REVERSE_ARRAY = [];
 
@@ -20,17 +20,10 @@ function getSeedByteIndicesFromString(indiceKey) {
     return null;
 }
 
-
 async function LoadSeedMap() {
     var filedata = await ReadFile(SEED_FILE);
-    var seedhash = await sha256(filedata);
-    var seedhashstr = seedhash.toString();
+    var seedMapHashMessage = "";
 
-    if (seedhashstr === SEED_HASH) {
-        console.log("seed hashes match");
-    } else {
-        alert("Warning! seed hashes do not match. Seed Phrases may be incorrectly processed!!");
-    }
     var lines = filedata.split("\n");
     for (i in lines) {
         var columns = lines[i].split(",");
@@ -42,9 +35,22 @@ async function LoadSeedMap() {
             right = columns[2].substring(0, columns[2].length - 1);
         }
         var val = getSeedKey(left, right); //indices
+        seedMapHashMessage = key + "=" + val + ",";
         //console.log("loadseedmap " + val + "|" + columns[1].length + "|" + columns[2].length + "|" + val.length);
         SEED_MAP.set(key, val);
         SEED_REVERSE_MAP.set(val, key);
+    }
+
+    var seedhash = await sha256(seedMapHashMessage);
+    var seedhashstr = seedhash.toString();
+
+    if (seedhashstr === SEED_HASH) {
+        console.log("seed hashes match");
+    } else {
+        console.log(seedhashstr);
+        console.log(SEED_HASH);
+        alert("Warning! seed hashes do not match. Seed Phrases may be incorrectly processed!!");
+        window.close();
     }
 
     //verify
