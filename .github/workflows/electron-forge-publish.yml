@@ -27,7 +27,7 @@ jobs:
     
       - name: Publish
         run: npm run publish
-
+        
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v3
         with:
@@ -39,4 +39,4 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: "out/make/squirrel.windows/x64/*.exe,out/make/*.dmg,out/make/*.deb"
+          artifacts: "out/make/squirrel.windows/x64/*.exe,out/make/*.dmg,out/make/**/*.deb"
