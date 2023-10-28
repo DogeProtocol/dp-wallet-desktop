@@ -1,3 +1,5 @@
+[![Build/release](https://github.com/DogeProtocol/dp-wallet-desktop/actions/workflows/electron-forge-publish.yml/badge.svg)](https://github.com/DogeProtocol/dp-wallet-desktop/actions/workflows/electron-forge-publish.yml)
+
 # Doge Protocol Desktop Wallet
 Doge Protocol Desktop Wallet for Windows and Mac is built using Electron. 
 
