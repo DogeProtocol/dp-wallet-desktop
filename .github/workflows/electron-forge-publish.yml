@@ -27,13 +27,6 @@ jobs:
     
       - name: Publish
         run: npm run publish
-        
-      - name: 'Upload Artifact'
-        uses: actions/upload-artifact@v3
-        with:
-          name: dpwallet
-          path: |
-                ${{ github.workspace }}/out/make/squirrel.windows/x64/*.exe
   
       - name: Release
         uses: ncipollo/release-action@v1
