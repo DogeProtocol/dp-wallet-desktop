@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [macos-latest, windows-latest,  ubuntu-latest]
 
     steps:
       - name: Check out Git repository
@@ -39,4 +39,4 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: "out/make/squirrel.windows/x64/*.exe,out/make/*.dmg"
+          artifacts: "out/make/squirrel.windows/x64/*.exe,out/make/*.dmg,out/make/*.deb"
