@@ -21,6 +21,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 21.1.0
+
+      - name: Install Dependencies
+        run: npm install
     
       - name: Publish
         run: npm run publish
